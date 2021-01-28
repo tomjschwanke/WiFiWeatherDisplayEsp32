@@ -147,6 +147,7 @@ void loop() {
     newDelay(2000);
     displayHumidity(humidity);
     newDelay(5000);
+    lilyLiveAlert();
     requestData();
   }
 }
@@ -464,6 +465,24 @@ void displayHumidity(int h) {
   }
 }
 
+void displayShrimp() {
+  for(int i = 0; i < 9; i++) {
+    displayImage(shrimpy[i]);
+    newDelay(50);
+  }
+  newDelay(500);
+  for(int i = 0; i < 3; i++) {
+    for(int j = 0; j < 2; j++) {
+      displayImage(shrimpy[9]);
+      newDelay(100);
+      displayImage(shrimpy[8]);
+      newDelay(100);
+    }
+    newDelay(1000);
+  }
+  newDelay(500);
+}
+
 void requestData() {
   dataIsFresh = false;
   checkWiFi();
@@ -503,6 +522,168 @@ void requestData() {
   http.end();
   client.stop();
   return;
+}
+
+void lilyLiveAlert() {
+  if (isLiveTwitch("shylily")) {
+    // Lily is live!
+    //Serial.println("[Twitch] Shylily is live!");
+    displayShrimp();
+  } else {
+    //Serial.println("[Twitch] Shylily is not live!");
+  }
+}
+
+// Checks if the specified user is live on Twitch
+bool isLiveTwitch(String username) {
+  bool live = false;
+  String name = "";
+  username.toLowerCase();                         // API works with lower case
+  String accessToken = accessTokenTwitch(true);   // Get accessToken from LittleFS or from Twitch API
+  if (accessToken.equals("")) {
+    // No token, unable to proceed
+    Serial.println("[Twitch] No token, unable to query API");
+    return false;
+  }
+  checkWiFi();
+  // Construct URL
+  String url = "https://api.twitch.tv/helix/search/channels?query=" + username + "&first=1";
+
+  client.setCACert(certGlobalSignRootCA);
+  
+  if (http.begin(client, url)) {
+    http.setReuse(false);
+    // Successful connection, add auth-headers
+    http.addHeader("client-id", twitchClientid); http.addHeader("Authorization", "Bearer " + accessToken);
+    int httpcode = http.GET();
+    if (httpcode == HTTP_CODE_OK) {
+      // Successful request, parse response
+      String payload = http.getString();
+      DynamicJsonDocument doc(1024);
+      deserializeJson(doc, payload);
+      JsonObject data = doc["data"][0];
+      name            = data["display_name"].as<String>();
+      live            = data["is_live"];
+      if (!name.equals(username)) {
+        // Since this is a search, check if resulting name equals the query
+        // If not, falsify
+        live = false;
+        Serial.println("[Twitch] Name doesn't match, got \"" + name + "\", expected \"" + username + "\"");
+      }
+      digitalWrite(LED_WARN, LOW);
+    } else {
+      // Failed request, skip
+      Serial.println("[Twitch] HTTP Error " + String(httpcode));
+      digitalWrite(LED_WARN, HIGH);
+    }
+  } else {
+    // Fail, skip
+    Serial.println("[Twitch] Error connecting to API");
+    digitalWrite(LED_WARN, HIGH);
+  }
+  http.end();
+  client.stop();
+  return live;
+}
+
+// Gets token from LittleFS or issues a new one
+String accessTokenTwitch(bool verify) {
+  String accessToken = readFileToken();
+  //Serial.println("[Twitch] AccessToken in LittleFS: " + accessToken);
+  if(verify) {
+    if (!accessTokenValidTwitch(accessToken)) {
+      String newAccessToken = getNewAccessTokenTwitch();
+      if (!newAccessToken.equals("")) {
+        writeFileToken(newAccessToken);
+        accessToken = newAccessToken;
+      }
+    }
+    //Serial.println("[Twitch] Using AccessToken " + accessToken);
+  }
+  return accessToken;
+}
+
+String getNewAccessTokenTwitch() {
+  //Serial.println("[Twitch] Getting new AccessToken...");
+  String accessToken = "";
+  String url = "https://id.twitch.tv/oauth2/token?client_id=" + String(twitchClientid) + "&client_secret=" + String(twitchBearer) + "&grant_type=client_credentials";
+  checkWiFi();
+  
+  client.setCACert(certAmazonRoot1CA);
+  
+  if (http.begin(client, url)) {
+    http.setReuse(false);
+    int httpcode = http.POST("");
+    if (httpcode == HTTP_CODE_OK) {
+      String payload = http.getString();
+      DynamicJsonDocument doc(192);
+      deserializeJson(doc, payload);
+      accessToken = doc["access_token"].as<String>();
+      digitalWrite(LED_WARN, LOW);
+    } else {
+      Serial.println("[Twitch] OAuth HTTP Error " + String(httpcode) + " for token");
+      digitalWrite(LED_WARN, HIGH);
+    }
+  } else {
+    Serial.println("[Twitch] Error connecting to OAuth endpoint");
+    digitalWrite(LED_WARN, HIGH);
+  }
+  http.end();
+  client.stop();
+  Serial.println("[Twitch] New AccessToken: " + accessToken);
+  return accessToken;
+}
+
+bool accessTokenValidTwitch(String accessToken) {
+  long expiresIn = accessTokenExpiresInTwitch(accessToken);
+  if (expiresIn == 9999999) {
+    // Check failed, assume true
+    return true;
+  } else {
+    // If token is valid for under 10 minutes, return false
+    return expiresIn >= 600;
+  }
+
+}
+
+// Returns the time in seconds the accessToken is valid for
+long accessTokenExpiresInTwitch(String accessToken) {
+  //Serial.println("[Twitch] Checking validity for AccessToken " + accessToken + "...");
+  long expiresIn = 0;
+  String url = "https://id.twitch.tv/oauth2/validate";
+  checkWiFi();
+
+  client.setCACert(certAmazonRoot1CA);
+
+  if (http.begin(client, url)) {
+    http.setReuse(false);
+    http.addHeader("Authorization", "Bearer " + accessToken);
+    int httpcode = http.GET();
+    if (httpcode == HTTP_CODE_OK) {
+      String payload = http.getString();
+      DynamicJsonDocument doc(128);
+      deserializeJson(doc, payload);
+      expiresIn = doc["expires_in"];
+      digitalWrite(LED_WARN, LOW);
+    } else if (httpcode == 401) {
+      // Token already expired, need to get new one, no need to do anything here
+      //Serial.println("[Twitch] Token " + accessToken + " is already expired or has been revoked");
+      digitalWrite(LED_WARN, LOW);
+    } else {
+      Serial.println("[Twitch] OAuth HTTP Error " + String(httpcode) + " for validate");
+      expiresIn = 9999999;
+      digitalWrite(LED_WARN, HIGH);
+    }
+  } else {
+    Serial.println("[Twitch] Error connecting to OAuth validation");
+    digitalWrite(LED_WARN, HIGH);
+  }
+  http.end();
+  client.stop();
+  if (expiresIn != 9999999) {
+    //Serial.println("[Twitch] AccessToken " + accessToken + " expires in " + String(expiresIn) + "s");
+  }
+  return expiresIn;
 }
 
 void checkWiFi() {
@@ -599,6 +780,14 @@ void writeFileConfig() {
   writeFileBool(PATH_LEAD0, leadingZero);
 
   touchFile(PATH_VALIDCONFIG);
+}
+
+String readFileToken() {
+  return readFileString(PATH_ACCESSTOKEN);
+}
+
+void writeFileToken(String token) {
+  writeFileString(PATH_ACCESSTOKEN, token);
 }
 
 void touchFile(const char * path) {

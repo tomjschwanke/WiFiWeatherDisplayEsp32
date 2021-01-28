@@ -1,3 +1,5 @@
+#define PATH_ACCESSTOKEN  "/twitchaccesstoken.txt"
+
 #define PATH_RESETFLAG    "/flagreset.txt"
 #define PATH_VALIDCONFIG  "/flagvalidconfig.txt"
 #define PATH_FORMATTED    "/flagformatted.txt"
@@ -10,6 +12,8 @@
 #define PATH_LEAD0        "/leadingzero.txt"
 
 /*
+#define PATH_ACCESSTOKEN  "/Twitch/accesstoken.txt"
+
 #define PATH_RESETFLAG    "/Flags/resetflag.txt"
 #define PATH_VALIDCONFIG  "/Flags/validconfig.txt"
 #define PATH_FORMATTED    "/Flags/formatted.txt"
