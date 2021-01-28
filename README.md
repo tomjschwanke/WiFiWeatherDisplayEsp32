@@ -2,6 +2,9 @@
 Adapted jconenna's WiFi weather display for my own needs and ported it to the ESP8266. This is basically a complete recode, but I still wanna give him credit for the existing animations.
 Due to the limitations of the ESP8266 I have now ported it to the ESP32
 
+## Shylily
+This branch contains the neccessary code to interface with the Twitch API and I use it to check if [Shylily](https://www.twitch.tv/shylily) is live on Twitch and if she is, a little blinking shrimp is displayed after the humidity.
+
 ## What is this?
 A WiFi weather station giving you a short animation on the current weather, the temperature and humidity.
 
