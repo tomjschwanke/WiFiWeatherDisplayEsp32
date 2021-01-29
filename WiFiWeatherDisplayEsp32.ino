@@ -40,6 +40,7 @@ LedController lc = LedController();
 int weatherId       = 0;
 float currentTemp   = 0;
 int humidity        = 0;
+int windspeed       = 0;
 long currentTime    = 0;
 long sunrise        = 0;
 long sunset         = 0;
@@ -147,6 +148,8 @@ void loop() {
     newDelay(2000);
     displayHumidity(humidity);
     newDelay(5000);
+    displayWindspeed();
+    delay(2000);
     requestData();
   }
 }
@@ -183,7 +186,7 @@ void adjustBrightness() {
 
 void displayTemp(int temp) {
   if (temp < 100 && temp > -1)
-    displayUnderHundred(temp);
+    displayUnderHundred(temp, true);
   else if (temp < 0 && temp > -10)
     displayNegative(temp);
   else
@@ -203,7 +206,7 @@ void displayNegative(int temp) {
   lc.setRow(0, 7, B00000001);
 }
 
-void displayUnderHundred(int temp) {
+void displayUnderHundred(int temp, bool degree) {
   if (temp < 10) {
     if(leadingZero) {
       for(unsigned int i = 0; i < 3; i++) {
@@ -226,6 +229,7 @@ void displayUnderHundred(int temp) {
     lc.setRow(0, i + 4, numUnderHundred[temp % 10][i]);
   }
 
+  if(degree)
   lc.setRow(0, 7, B00000001);
 }
 
@@ -412,6 +416,18 @@ void displayClearNight() {
     }
 }
 
+void displayWindspeed() {
+  for(int i = 0; i < 8; i++) {
+    lc.setRow(0, i, windanimation[i % 2]);
+    delay(50);
+  }
+  if(windspeed < 100) {
+    displayUnderHundred(windspeed, false);
+  }else if(windspeed >= 100) {
+    displayOverHundred(windspeed);
+  }
+}
+
 void cloudDriver(byte b[]) {
   for (unsigned int i = 0; i < 2; i++) {
     for (unsigned int j = 0 ; j < 16; j++) {
@@ -486,6 +502,8 @@ void requestData() {
       currentTemp           = main["temp"];
       humidity              = main["humidity"];
       currentTime           = doc["dt"];
+      JsonObject wind       = doc["wind"];
+      windspeed             = wind["speed"];      
       JsonObject sys        = doc["sys"];
       sunrise               = sys["sunrise"];
       sunset                = sys["sunset"];
