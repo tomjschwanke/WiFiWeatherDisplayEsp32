@@ -25,6 +25,9 @@
 #define LED_CONN  26 // Red
 #define LED_WARN  27 // Yellow
 
+const String version = "1";
+String latestVersion;
+
 // For config mode
 IPAddress configIp(192, 168, 4, 1);
 DNSServer dnsServer;
@@ -503,6 +506,58 @@ void requestData() {
   http.end();
   client.stop();
   return;
+}
+
+// Checks for a new version and returns the download URL if one is available
+String requestUpdate() {
+  wifiLed();
+  String uri = "https://api.github.com/repos/tomjschwanke/unlimitedanvil/releases/latest";
+  String downloadUrl = "";
+
+  client.setCACert(digiCertEVRootCA);
+  
+  if(http.begin(client, uri)) {
+    http.addHeader("User-Agent", "WiFiWeatherDisplayEsp32-v1");
+    int httpCode = http.GET();
+    if(httpCode == HTTP_CODE_OK) {
+
+      String payload = http.getString();
+
+      // Parse JSON
+      DynamicJsonDocument doc(6114);
+      deserializeJson(doc, payload);
+      latestVersion       = doc["name"].as<String>();
+      JsonObject assets_0 = doc["assets"][0];
+      downloadUrl         = assets_0["browser_download_url"].as<String>();
+      
+      if(latestVersion.equals(version)) {
+        Serial.printf("[Updater] Version \"%s\" is already the newest version.\n\r", version);
+        // Remove download url so we do not download anything
+        downloadUrl = "";        
+      }else {
+        // TODO: check if version on the server is higher
+        Serial.printf("[Updater] This version \"%s\" differs from version \"%s\" on the server, updating...\n\r", version, latestVersion);
+
+      }
+
+    }else {
+      // HTTP error
+      Serial.printf("[Updater] HTTP error %d\n\r", httpCode);
+    }
+
+  }else {
+    // Connection failed
+    Serial.println("[Updater] Connection failed");
+  }
+  http.end();
+  client.stop();
+  return downloadUrl;
+}
+
+// Downloads and installs the update from the given URL
+void installUpdate(String uri) {
+  // TODO: implement OTA mechanism
+  
 }
 
 void checkWiFi() {
