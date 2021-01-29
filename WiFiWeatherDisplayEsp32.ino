@@ -514,7 +514,7 @@ String requestUpdate() {
   String uri = "https://api.github.com/repos/tomjschwanke/unlimitedanvil/releases/latest";
   String downloadUrl = "";
 
-  client.setCACert(digiCertEVRootCA);
+  client.setCACert(digiCertEvRootCA);
   
   if(http.begin(client, uri)) {
     http.addHeader("User-Agent", "WiFiWeatherDisplayEsp32-v1");
