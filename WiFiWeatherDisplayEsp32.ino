@@ -555,9 +555,33 @@ String requestUpdate() {
 }
 
 // Downloads and installs the update from the given URL
-void installUpdate(String uri) {
-  // TODO: implement OTA mechanism
-  
+void installUpdate(char url[]) {
+  char *host, *path;
+  get_URL_data(url, &host, &path);
+  // TODO: validate its not empty
+
+  // TODO: implement update
+  //ESPhttpUpdate.update(host, 80, path);
+}
+
+void get_URL_data(
+  char* url,
+  char** hostbuffer,
+  char** pathbuffer
+) {
+  int url_i = 0, host_i = 0, path_i = 0, temp = 0;
+  while(url[url_i] != ':') url_i++;
+  url_i += 3;
+  while(url[url_i + temp++] != '/');
+  *hostbuffer = new char[temp];
+  while(url[url_i] != '/')
+    (*hostbuffer)[host_i++] = url[url_i++];
+  (*hostbuffer)[host_i] = '\0';
+  temp = 0; while(url[url_i + temp++] != '\0');
+  *pathbuffer = new char[temp];
+  while(url[url_i] != '\0')
+    (*pathbuffer)[path_i++] = url[url_i++];
+  (*pathbuffer)[path_i] = '\0';
 }
 
 void checkWiFi() {
