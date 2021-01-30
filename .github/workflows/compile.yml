@@ -10,7 +10,7 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Create dummy credentials file
-      uses: DamianReeves/write-file-action@v1
+      uses: DamianReeves/write-file-action@v1.0
       with:
         path: credentials.hpp
         contents: |
