@@ -531,12 +531,12 @@ String requestUpdate() {
       downloadUrl         = assets_0["browser_download_url"].as<String>();
       
       if(latestVersion.equals(version)) {
-        Serial.printf("[Updater] Version \"%s\" is already the newest version.\n\r", version);
+        Serial.printf("[Updater] Version \"%s\" is already the newest version.\n\r", version.c_str());
         // Remove download url so we do not download anything
         downloadUrl = "";        
       }else {
         // TODO: check if version on the server is higher
-        Serial.printf("[Updater] This version \"%s\" differs from version \"%s\" on the server, updating...\n\r", version, latestVersion);
+        Serial.printf("[Updater] This version \"%s\" differs from version \"%s\" on the server, updating...\n\r", version.c_str(), latestVersion.c_str());
 
       }
 
