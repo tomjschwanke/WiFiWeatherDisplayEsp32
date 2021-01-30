@@ -28,12 +28,12 @@ jobs:
           const char* twitchClientid  = "";
           const char* twitchBearer    = "";
 
-        write-mode: append
+        write-mode: overwrite
 
     - name: Compile all examples
       uses: ArminJo/arduino-test-compile@v3
       with:
         arduino-board-fqbn: esp32:esp32:esp32:PSRAM=disabled,PartitionScheme=default,CPUFreq=240,FlashMode=qio,FlashFreq=80,FlashSize=4M,UploadSpeed=921600,DebugLevel=none
         platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-        required-libraries: LedController,LinkedList,ArduinoJson,LittleFS_esp32
+        required-libraries: LedController@1.7.2,LinkedList,ArduinoJson,LittleFS_esp32
         debug-compile: true
