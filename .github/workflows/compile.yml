@@ -24,10 +24,6 @@ jobs:
           // OpenWeatherMap API key
           const char* apikey          = "";
 
-          // Twitch credentials
-          const char* twitchClientid  = "";
-          const char* twitchBearer    = "";
-
         write-mode: overwrite
 
     - name: Compile all examples
