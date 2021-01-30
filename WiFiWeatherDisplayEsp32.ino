@@ -12,7 +12,7 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <ArduinoOTA.h>
-#include <mDNS.h>
+#include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <WebServer.h>
 #include <DNSServer.h>
