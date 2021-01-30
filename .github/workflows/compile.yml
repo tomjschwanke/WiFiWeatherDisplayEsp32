@@ -1,0 +1,35 @@
+name: Compile
+on: [push, pull_request]
+jobs:
+  build:
+    name: Compile for ESP32
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: Create dummy credentials file
+      uses: DamianReeves/write-file-action@v1.0
+      with:
+        path: credentials.hpp
+        contents: |
+          // OTA password (md5)
+          const char* otapasshash     = "";
+
+          // Config mode config
+          char* configSsid            = "WiFiWeatherDisplay Setup";
+          char* configPass            = "12345678";
+
+          // OpenWeatherMap API key
+          const char* apikey          = "";
+
+        write-mode: overwrite
+
+    - name: Compile all examples
+      uses: ArminJo/arduino-test-compile@v3
+      with:
+        arduino-board-fqbn: esp32:esp32:esp32:PSRAM=disabled,PartitionScheme=default,CPUFreq=240,FlashMode=qio,FlashFreq=80,FlashSize=4M,UploadSpeed=921600,DebugLevel=none
+        platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+        required-libraries: LedController@1.7.2,LinkedList,ArduinoJson,LittleFS_esp32
+        debug-compile: true
