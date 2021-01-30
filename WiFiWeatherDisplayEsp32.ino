@@ -1,18 +1,18 @@
 // Look into settings.hpp!
 
-#include "LedController.hpp"
 #include "frames.hpp"
 #include "settings.hpp"
 #include "certificates.hpp"
 #include "configLITTLEFS.hpp"
 #include "credentials.hpp"
 #include "html.hpp"
+#include <LedController.hpp>
 #include <LinkedList.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <ArduinoOTA.h>
-#include <mDNS.h>
+#include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <WebServer.h>
 #include <DNSServer.h>

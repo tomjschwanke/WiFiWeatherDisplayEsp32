@@ -1,0 +1,14 @@
+github-config:
+  - ./.github/*
+
+core:
+  - WiFiWeatherDisplayEsp32.ino
+
+certificates:
+  - certificates.hpp
+  
+frames:
+  - frames.hpp
+  
+html:
+  - html.hpp
