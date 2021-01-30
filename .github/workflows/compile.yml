@@ -2,12 +2,33 @@ name: Compile
 on: [push, pull_request]
 jobs:
   build:
-    name: Test compiling examples for esp8266
+    name: Compile for ESP32
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      
+    - name: Create dummy credentials file
+      uses: DamianReeves/write-file-action@v1
+      with:
+        path: credentials.hpp
+        contents: |
+          // OTA password (md5)
+          const char* otapasshash     = "";
+
+          // Config mode config
+          char* configSsid            = "WiFiWeatherDisplay Setup";
+          char* configPass            = "12345678";
+
+          // OpenWeatherMap API key
+          const char* apikey          = "";
+
+          // Twitch credentials
+          const char* twitchClientid  = "";
+          const char* twitchBearer    = "";
+
+        write-mode: append
 
     - name: Compile all examples
       uses: ArminJo/arduino-test-compile@v3
