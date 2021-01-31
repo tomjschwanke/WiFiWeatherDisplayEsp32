@@ -18,7 +18,7 @@
 #include <DNSServer.h>
 #include <FS.h>
 #include <LITTLEFS.h>
-#include <HttpsOTAUpdate.h>
+//#include <HttpsOTAUpdate.h>
 
 #define CS        5
 #define Segments  1
