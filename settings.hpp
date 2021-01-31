@@ -1,12 +1,12 @@
 // Device name
-String devicename         = "";
+char devicename[33]       = "";
 
 // WiFi credentials
-String ssid               = "";
-String wifipass           = "";
+char ssid[33]             = "";
+char wifipass[64]         = "";
 
 // Location to search
-String location           = "";
+char location[33]         = "";
 
 // false: imperial
 bool metricUnits;
