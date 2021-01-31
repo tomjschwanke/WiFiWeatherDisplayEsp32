@@ -241,150 +241,225 @@ void displayOverHundred(int temp) {
 }
 
 void displayAnimation(int code) {
-  if (code == 200 || (code <= 232 && code >= 230)) { // thunderstorm with light rain
-    for (unsigned int i = 0; i < 3; i ++) {
-      for (unsigned int j = 0; j < 3; j ++) {
-        displayImage(moderateRain[j]);
-        newDelay(400);
-      }
 
-      for (unsigned int j = 0; j < 2; j ++)
-        for (unsigned int k = 1; k < 3; k ++) {
-          displayImage(lightning[k]);
-          if (k == 1)
+  switch (code) {
+    case 200:
+    case 230:
+    case 231:
+    case 232:
+      // thunderstorm with light rain
+      for (unsigned int i = 0; i < 3; i++) {
+        for (unsigned int j = 0; j < 3; j++) {
+          displayImage(moderateRain[j]);
+          newDelay(400);
+        }
+
+        for (unsigned int j = 0; j < 2; j++)
+          for (unsigned int k = 1; k < 3; k++) {
+            displayImage(lightning[k]);
+            if (k == 1)
+              newDelay(200);
+            else
+              newDelay(30);
+          }
+      }
+      break;
+    case 201:
+      // thunderstorm with moderate rain
+      for (unsigned int i = 0; i < 4; i++) {
+        for (unsigned int j = 0; j < 4; j++)
+          for (unsigned int k = 0; k < 3; k++) {
+            displayImage(moderateRain[k]);
+            newDelay(100);
+          }
+
+        for (unsigned int j = 0; j < 2; j++)
+          for (unsigned int k = 1; k < 3; k++) {
+            displayImage(lightning[k]);
+            if (k == 1)
+              newDelay(200);
+            else
+              newDelay(30);
+          }
+      }
+      break;
+    case 202:
+      // thunderstorm with heavy rain
+      for (unsigned int i = 0; i < 4; i++) {
+        for (unsigned int j = 0; j < 4; j++)
+          for (unsigned int k = 0; k < 3; k++) {
+            displayImage(heavyRain[k]);
+            newDelay(100);
+          }
+
+        for (unsigned int j = 0; j < 2; j++)
+          for (unsigned int k = 1; k < 3; k++) {
+            displayImage(lightning[k]);
+            if (k == 1)
+              newDelay(200);
+            else
+              newDelay(30);
+          }
+      }
+      break;
+    case 210:
+    case 211:
+    case 212:
+    case 213:
+    case 214:
+    case 215:
+    case 216:
+    case 217:
+    case 218:
+    case 219:
+    case 220:
+    case 221:
+      // lightning storm
+      for (unsigned int i = 0; i < 4; i++) {
+        for (unsigned int j = 0; j < 3; j++) {
+          displayImage(lightning[j]);
+          if (j == 0)
+            newDelay(700);
+          else if (j == 1)
             newDelay(200);
           else
             newDelay(30);
         }
-    }
-  }
 
-  else if (code == 201) { // thunderstorm with moderate rain
-    for (unsigned int i = 0; i < 4; i ++) {
-      for (unsigned int j = 0; j < 4; j ++)
-        for (unsigned int k = 0; k < 3; k ++) {
-          displayImage(moderateRain[k]);
+        for (unsigned int j = 1; j < 3; j++) {
+          displayImage(lightning[j]);
+          if (j == 1)
+            newDelay(200);
+          else
+            newDelay(30);
+        }
+      }
+      break;
+    case 300:
+    case 301:
+    case 302:
+    case 303:
+    case 304:
+    case 305:
+    case 306:
+    case 307:
+    case 308:
+    case 309:
+    case 310:
+    case 311:
+    case 312:
+    case 313:
+    case 314:
+    case 315:
+    case 316:
+    case 317:
+    case 318:
+    case 319:
+    case 320:
+    case 321:
+    case 500:
+    case 520:
+      // display light rain or drizzle
+      for (unsigned int i = 0; i < 5; i++)
+        for (unsigned int j = 0; j < 3; j++) {
+          displayImage(moderateRain[j]);
+          newDelay(400);
+        }
+      break;
+    case 501:
+    case 521:
+      // display moderate rain
+      for (unsigned int i = 0; i < 20; i++)
+        for (unsigned int j = 0; j < 3; j++) {
+          displayImage(moderateRain[j]);
           newDelay(100);
         }
-
-      for (unsigned int j = 0; j < 2; j ++)
-        for (unsigned int k = 1; k < 3; k ++) {
-          displayImage(lightning[k]);
-          if (k == 1)
-            newDelay(200);
-          else
-            newDelay(30);
-        }
-    }
-  }
-
-  else if (code == 202) { // thunderstorm with heavy rain
-    for (unsigned int i = 0; i < 4; i ++) {
-      for (unsigned int j = 0; j < 4; j ++)
-        for (unsigned int k = 0; k < 3; k ++) {
-          displayImage(heavyRain[k]);
+      break;
+    case 502:
+    case 503:
+    case 504:
+    case 505:
+    case 506:
+    case 507:
+    case 508:
+    case 509:
+    case 510:
+    case 511:
+    case 522:
+    case 531:
+    case 771:
+    case 906:
+    case 901:
+    case 902:
+      // code > 958
+      // display heavy rain
+      for (unsigned int i = 0; i < 20; i++)
+        for (unsigned int j = 0; j < 3; j++) {
+          displayImage(heavyRain[j]);
           newDelay(100);
         }
-
-      for (unsigned int j = 0; j < 2; j ++)
-        for (unsigned int k = 1; k < 3; k ++) {
-          displayImage(lightning[k]);
-          if (k == 1)
-            newDelay(200);
-          else
-            newDelay(30);
+      break;
+    case 801:
+      // display few clouds
+      cloudDriver(fewClouds);
+      break;
+    case 802:
+      // display scattered clouds
+      cloudDriver(scatteredClouds);
+      break;
+    case 803:
+    case 804:
+      // display overcast or broken clouds
+      cloudDriver(brokenClouds);
+      break;
+    case 600:
+    case 601:
+    case 611:
+    case 612:
+    case 615:
+    case 616:
+    case 620:
+    case 621:
+      // Added for light to normal snowfall
+      for (unsigned int i = 0; i < 5; i++) {
+        displayImage(snowfall[0]);
+        newDelay(1000);
+        displayImage(snowfall[1]);
+        newDelay(1000);
+      }
+      break;
+    case 602:
+    case 622:
+      // Added for heavy snowfall
+      for (unsigned int i = 0; i < 5; i++) {
+        for (unsigned int j = 0; j < 4; j++) {
+          displayImage(heavySnowfall[j]);
+          newDelay(500);
         }
-    }
-  }
-
-  else if (code >= 210 && code <= 221) { // lightning storm
-    for (unsigned int i = 0; i < 4; i ++) {
-      for (unsigned int j = 0; j < 3; j ++) {
-        displayImage(lightning[j]);
-        if (j == 0)
-          newDelay(700);
-        else if (j == 1)
-          newDelay(200);
-        else
-          newDelay(30);
       }
-
-      for (unsigned int j = 1; j < 3; j ++) {
-        displayImage(lightning[j]);
-        if (j == 1)
-          newDelay(200);
-        else
-          newDelay(30);
-      }
-    }
-  }
-
-  else if ((code >= 300 && code <= 321) || code == 500 || code == 520) { // display light rain or drizzle
-    for (unsigned int i = 0; i < 5; i ++)
-      for (unsigned int j = 0; j < 3; j ++) {
-        displayImage(moderateRain[j]);
-        newDelay(400);
-      }
-  }
-
-  else if (code == 501 || code == 521) { // display moderate rain
-    for (unsigned int i = 0; i < 20; i ++)
-      for (unsigned int j = 0; j < 3; j ++) {
-        displayImage(moderateRain[j]);
-        newDelay(100);
-      }
-  }
-
-  else if ((code >= 502 && code <= 511) || code == 522 || code == 531 || code == 771 || code == 906 || code == 901 || code == 902 || code > 958) { // display heavy rain
-    for (unsigned int i = 0; i < 20; i ++)
-      for (unsigned int j = 0; j < 3; j ++)
-      {
-        displayImage(heavyRain[j]);
-        newDelay(100);
-      }
-  }
-
-  else if (code == 801) // display few clouds
-    cloudDriver(fewClouds);
-
-  else if (code == 802) // display scattered clouds
-    cloudDriver(scatteredClouds);
-
-  else if (code == 803 || code == 804) // display overcast or broken clouds
-    cloudDriver(brokenClouds);
-
-  else if (code == 600 || code == 601 || code == 611 || code == 612 || code == 615 || code == 616 || code == 620 || code == 621) {
-    for (unsigned int i = 0; i < 5; i++) {     // Added for light to normal snowfall
-      displayImage(snowfall[0]);
-      newDelay(1000);
-      displayImage(snowfall[1]);
-      newDelay(1000);
-    }
-  }
-
-  else if (code == 602 || code == 622) {          // Added for heavy snowfall
-    for (unsigned int i = 0; i < 5; i++) {
-      for (unsigned int j = 0; j < 4; j++) {
-        displayImage(heavySnowfall[j]);
+      break;
+    case 701:
+    case 741:
+    case 711:
+    case 721:
+    case 731:
+    case 751:
+    case 761:
+    case 762:
+      cloudDriver(fog);
+      break;
+    case 800:
+      dayOrNight();
+      break;
+    default:
+      for (unsigned int i = 0; i < 5; i++) {
+        displayImage(notFound[0]);
+        newDelay(500);
+        displayImage(notFound[1]);
         newDelay(500);
       }
-    }
+      break;
   }
-
-  else if (code == 701 || code == 741 || code == 711 || code == 721 || code == 731 || code == 751 || code == 761 || code == 762 || code == 771) {           // Fog and mist
-    cloudDriver(fog);
-  }
-
-  else if (code == 800)
-    dayOrNight();
-
-  else
-    for (unsigned int i = 0; i < 5; i++) {
-      displayImage(notFound[0]);
-      newDelay(500);
-      displayImage(notFound[1]);
-      newDelay(500);
-    }
 }
 
 void dayOrNight() {
