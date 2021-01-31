@@ -533,7 +533,6 @@ void setupWiFi() {
   wifiLed();
 }
 
-// TODO: remove duplicates
 void scanWiFi() {
   int n = WiFi.scanNetworks();
   int m = n;
@@ -545,7 +544,6 @@ void scanWiFi() {
     }
   }
   wifiNr = m;
-  
 }
 
 void displayImage(byte image[]) {
