@@ -18,6 +18,7 @@
 #include <DNSServer.h>
 #include <FS.h>
 #include <LITTLEFS.h>
+//#include <HttpsOTAUpdate.h>
 
 #define CS        5
 #define Segments  1
@@ -25,8 +26,8 @@
 #define LED_CONN  26 // Red
 #define LED_WARN  27 // Yellow
 
-const String version = "1";
-String latestVersion;
+const char *version = "1";
+char latestVersion[9];
 
 // For config mode
 IPAddress configIp(192, 168, 4, 1);
@@ -508,15 +509,22 @@ void requestData() {
   return;
 }
 
+void checkAndInstallUpdates() {
+  char *downloadUrl;
+  requestUpdate(&downloadUrl);
+  if(!strcmp(downloadUrl, "") == 0) {
+    // Update available
+  }
+}
+
 // Checks for a new version and returns the download URL if one is available
-String requestUpdate() {
-  wifiLed();
-  String uri = "https://api.github.com/repos/tomjschwanke/unlimitedanvil/releases/latest";
-  String downloadUrl = "";
+void requestUpdate(char **downloadUrl) {
+  const char *checkUrl = "https://api.github.com/repos/tomjschwanke/unlimitedanvil/releases/latest";
+  checkWiFi();
 
   client.setCACert(digiCertEvRootCA);
   
-  if(http.begin(client, uri)) {
+  if(http.begin(client, checkUrl)) {
     http.addHeader("User-Agent", "WiFiWeatherDisplayEsp32-v1");
     int httpCode = http.GET();
     if(httpCode == HTTP_CODE_OK) {
@@ -526,18 +534,15 @@ String requestUpdate() {
       // Parse JSON
       DynamicJsonDocument doc(6114);
       deserializeJson(doc, payload);
-      latestVersion       = doc["name"].as<String>();
+      strcpy(latestVersion, doc["name"].as<char*>());
       JsonObject assets_0 = doc["assets"][0];
-      downloadUrl         = assets_0["browser_download_url"].as<String>();
       
-      if(latestVersion.equals(version)) {
-        Serial.printf("[Updater] Version \"%s\" is already the newest version.\n\r", version.c_str());
-        // Remove download url so we do not download anything
-        downloadUrl = "";        
+      if(strcmp(version, latestVersion) == 0) {
+        Serial.printf("[Updater] Version \"%s\" is already the newest version.\n\r", version);
       }else {
         // TODO: check if version on the server is higher
-        Serial.printf("[Updater] This version \"%s\" differs from version \"%s\" on the server, updating...\n\r", version.c_str(), latestVersion.c_str());
-
+        Serial.printf("[Updater] This version \"%s\" differs from version \"%s\" on the server, updating...\n\r", version, latestVersion);
+        strcpy(*downloadUrl, assets_0["browser_download_url"].as<char*>());
       }
 
     }else {
@@ -551,11 +556,10 @@ String requestUpdate() {
   }
   http.end();
   client.stop();
-  return downloadUrl;
 }
 
 // Downloads and installs the update from the given URL
-void installUpdate(String uri) {
+void installUpdate(char* uri) {
   // TODO: implement OTA mechanism
   
 }
