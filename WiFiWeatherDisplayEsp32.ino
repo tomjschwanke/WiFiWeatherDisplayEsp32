@@ -258,38 +258,17 @@ void displayAnimation(int code) {
     case 210:
     case 211:
     case 212:
-    case 213:
-    case 214:
-    case 215:
-    case 216:
-    case 217:
-    case 218:
-    case 219:
-    case 220:
     case 221:
       displayLightning();
       break;
     case 300:
     case 301:
     case 302:
-    case 303:
-    case 304:
-    case 305:
-    case 306:
-    case 307:
-    case 308:
-    case 309:
     case 310:
     case 311:
     case 312:
     case 313:
     case 314:
-    case 315:
-    case 316:
-    case 317:
-    case 318:
-    case 319:
-    case 320:
     case 321:
     case 500:
     case 520:
@@ -302,20 +281,10 @@ void displayAnimation(int code) {
     case 502:
     case 503:
     case 504:
-    case 505:
-    case 506:
-    case 507:
-    case 508:
-    case 509:
-    case 510:
     case 511:
     case 522:
     case 531:
     case 771:
-    case 906:
-    case 901:
-    case 902:
-      // code > 958
       displayRainHeavy();
       break;
     case 801:
@@ -332,6 +301,7 @@ void displayAnimation(int code) {
     case 601:
     case 611:
     case 612:
+    case 613:
     case 615:
     case 616:
     case 620:
@@ -343,10 +313,10 @@ void displayAnimation(int code) {
       displaySnowfallHeavy();
       break;
     case 701:
-    case 741:
     case 711:
     case 721:
     case 731:
+    case 741:
     case 751:
     case 761:
     case 762:
@@ -359,6 +329,7 @@ void displayAnimation(int code) {
       displayNotFound();
       break;
   }
+  // TODO: tornado
 }
 
 void displayThunderstormRainLight() {
