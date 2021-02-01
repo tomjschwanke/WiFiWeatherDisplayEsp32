@@ -247,60 +247,13 @@ void displayAnimation(int code) {
     case 230:
     case 231:
     case 232:
-      // thunderstorm with light rain
-      for (unsigned int i = 0; i < 3; i++) {
-        for (unsigned int j = 0; j < 3; j++) {
-          displayImage(moderateRain[j]);
-          newDelay(400);
-        }
-
-        for (unsigned int j = 0; j < 2; j++)
-          for (unsigned int k = 1; k < 3; k++) {
-            displayImage(lightning[k]);
-            if (k == 1)
-              newDelay(200);
-            else
-              newDelay(30);
-          }
-      }
+      displayThunderstormRainLight();
       break;
     case 201:
-      // thunderstorm with moderate rain
-      for (unsigned int i = 0; i < 4; i++) {
-        for (unsigned int j = 0; j < 4; j++)
-          for (unsigned int k = 0; k < 3; k++) {
-            displayImage(moderateRain[k]);
-            newDelay(100);
-          }
-
-        for (unsigned int j = 0; j < 2; j++)
-          for (unsigned int k = 1; k < 3; k++) {
-            displayImage(lightning[k]);
-            if (k == 1)
-              newDelay(200);
-            else
-              newDelay(30);
-          }
-      }
+      displayThunderstormRainModerate();
       break;
     case 202:
-      // thunderstorm with heavy rain
-      for (unsigned int i = 0; i < 4; i++) {
-        for (unsigned int j = 0; j < 4; j++)
-          for (unsigned int k = 0; k < 3; k++) {
-            displayImage(heavyRain[k]);
-            newDelay(100);
-          }
-
-        for (unsigned int j = 0; j < 2; j++)
-          for (unsigned int k = 1; k < 3; k++) {
-            displayImage(lightning[k]);
-            if (k == 1)
-              newDelay(200);
-            else
-              newDelay(30);
-          }
-      }
+      displayThunderstormRainHeavy();
       break;
     case 210:
     case 211:
@@ -314,26 +267,7 @@ void displayAnimation(int code) {
     case 219:
     case 220:
     case 221:
-      // lightning storm
-      for (unsigned int i = 0; i < 4; i++) {
-        for (unsigned int j = 0; j < 3; j++) {
-          displayImage(lightning[j]);
-          if (j == 0)
-            newDelay(700);
-          else if (j == 1)
-            newDelay(200);
-          else
-            newDelay(30);
-        }
-
-        for (unsigned int j = 1; j < 3; j++) {
-          displayImage(lightning[j]);
-          if (j == 1)
-            newDelay(200);
-          else
-            newDelay(30);
-        }
-      }
+      displayLightning();
       break;
     case 300:
     case 301:
@@ -359,21 +293,11 @@ void displayAnimation(int code) {
     case 321:
     case 500:
     case 520:
-      // display light rain or drizzle
-      for (unsigned int i = 0; i < 5; i++)
-        for (unsigned int j = 0; j < 3; j++) {
-          displayImage(moderateRain[j]);
-          newDelay(400);
-        }
+      displayRainLight();
       break;
     case 501:
     case 521:
-      // display moderate rain
-      for (unsigned int i = 0; i < 20; i++)
-        for (unsigned int j = 0; j < 3; j++) {
-          displayImage(moderateRain[j]);
-          newDelay(100);
-        }
+      displayRainModerate();
       break;
     case 502:
     case 503:
@@ -392,24 +316,16 @@ void displayAnimation(int code) {
     case 901:
     case 902:
       // code > 958
-      // display heavy rain
-      for (unsigned int i = 0; i < 20; i++)
-        for (unsigned int j = 0; j < 3; j++) {
-          displayImage(heavyRain[j]);
-          newDelay(100);
-        }
+      displayRainHeavy();
       break;
     case 801:
-      // display few clouds
       cloudDriver(fewClouds);
       break;
     case 802:
-      // display scattered clouds
       cloudDriver(scatteredClouds);
       break;
     case 803:
     case 804:
-      // display overcast or broken clouds
       cloudDriver(brokenClouds);
       break;
     case 600:
@@ -420,23 +336,11 @@ void displayAnimation(int code) {
     case 616:
     case 620:
     case 621:
-      // Added for light to normal snowfall
-      for (unsigned int i = 0; i < 5; i++) {
-        displayImage(snowfall[0]);
-        newDelay(1000);
-        displayImage(snowfall[1]);
-        newDelay(1000);
-      }
+      displaySnowfall();
       break;
     case 602:
     case 622:
-      // Added for heavy snowfall
-      for (unsigned int i = 0; i < 5; i++) {
-        for (unsigned int j = 0; j < 4; j++) {
-          displayImage(heavySnowfall[j]);
-          newDelay(500);
-        }
-      }
+      displaySnowfallHeavy();
       break;
     case 701:
     case 741:
@@ -452,13 +356,137 @@ void displayAnimation(int code) {
       dayOrNight();
       break;
     default:
-      for (unsigned int i = 0; i < 5; i++) {
-        displayImage(notFound[0]);
-        newDelay(500);
-        displayImage(notFound[1]);
-        newDelay(500);
-      }
+      displayNotFound();
       break;
+  }
+}
+
+void displayThunderstormRainLight() {
+  for (unsigned int i = 0; i < 3; i++) {
+    for (unsigned int j = 0; j < 3; j++) {
+      displayImage(moderateRain[j]);
+      newDelay(400);
+    }
+
+    for (unsigned int j = 0; j < 2; j++)
+      for (unsigned int k = 1; k < 3; k++) {
+        displayImage(lightning[k]);
+        if (k == 1)
+          newDelay(200);
+        else
+          newDelay(30);
+      }
+  }
+}
+
+void displayThunderstormRainModerate() {
+  for (unsigned int i = 0; i < 4; i++) {
+    for (unsigned int j = 0; j < 4; j++)
+      for (unsigned int k = 0; k < 3; k++) {
+        displayImage(moderateRain[k]);
+        newDelay(100);
+      }
+
+    for (unsigned int j = 0; j < 2; j++)
+      for (unsigned int k = 1; k < 3; k++) {
+        displayImage(lightning[k]);
+        if (k == 1)
+          newDelay(200);
+        else
+          newDelay(30);
+      }
+  }
+}
+
+void displayThunderstormRainHeavy() {
+  for (unsigned int i = 0; i < 4; i++) {
+    for (unsigned int j = 0; j < 4; j++)
+      for (unsigned int k = 0; k < 3; k++) {
+        displayImage(heavyRain[k]);
+        newDelay(100);
+      }
+
+    for (unsigned int j = 0; j < 2; j++)
+      for (unsigned int k = 1; k < 3; k++) {
+        displayImage(lightning[k]);
+        if (k == 1)
+          newDelay(200);
+        else
+          newDelay(30);
+      }
+  }
+}
+
+void displayLightning() {
+  for (unsigned int i = 0; i < 4; i++) {
+    for (unsigned int j = 0; j < 3; j++) {
+      displayImage(lightning[j]);
+      if (j == 0)
+        newDelay(700);
+      else if (j == 1)
+        newDelay(200);
+      else
+        newDelay(30);
+    }
+
+    for (unsigned int j = 1; j < 3; j++) {
+      displayImage(lightning[j]);
+      if (j == 1)
+        newDelay(200);
+      else
+        newDelay(30);
+    }
+  }
+}
+
+void displayRainLight() {
+  for (unsigned int i = 0; i < 5; i++)
+    for (unsigned int j = 0; j < 3; j++) {
+      displayImage(moderateRain[j]);
+      newDelay(400);
+    }
+}
+
+void displayRainModerate() {
+  for (unsigned int i = 0; i < 20; i++)
+    for (unsigned int j = 0; j < 3; j++) {
+      displayImage(moderateRain[j]);
+      newDelay(100);
+    }
+}
+
+void displayRainHeavy() {
+  for (unsigned int i = 0; i < 20; i++)
+    for (unsigned int j = 0; j < 3; j++) {
+      displayImage(heavyRain[j]);
+      newDelay(100);
+    }
+}
+
+void displaySnowfall() {
+  for (unsigned int i = 0; i < 5; i++) {
+    displayImage(snowfall[0]);
+    newDelay(1000);
+    displayImage(snowfall[1]);
+    newDelay(1000);
+  }
+}
+
+void displaySnowfallHeavy() {
+  for (unsigned int i = 0; i < 5; i++) {
+    for (unsigned int j = 0; j < 4; j++) {
+      displayImage(heavySnowfall[j]);
+      newDelay(500);
+    }
+  }
+}
+
+void displayNotFound() {
+  for (unsigned int i = 0; i < 5; i++) {
+    displayImage(notFound[0]);
+    newDelay(500);
+    displayImage(notFound[1]);
+    newDelay(500);
   }
 }
 
