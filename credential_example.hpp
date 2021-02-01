@@ -7,3 +7,7 @@ const char* configPass            = "12345678";
 
 // OpenWeatherMap API key
 const char* apikey          = "";
+
+// Twitch credentials
+const char* twitchClientid  = "";
+const char* twitchBearer    = "";
