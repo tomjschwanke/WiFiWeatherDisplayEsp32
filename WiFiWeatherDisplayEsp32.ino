@@ -51,7 +51,7 @@ bool configMode;
 char wifiScan[64][33];
 int  wifiNr = 0;
 
-LinkedList<byte> buffer = LinkedList<byte>();
+LinkedList<uint8_t> buffer = LinkedList<uint8_t>();
 
 void setup() {
   WiFi.disconnect();
@@ -486,7 +486,7 @@ void displayClearNight() {
     }
 }
 
-void cloudDriver(byte b[]) {
+void cloudDriver(uint8_t b[]) {
   for (unsigned int i = 0; i < 2; i++) {
     for (unsigned int j = 0 ; j < 16; j++) {
       passInByte(b[j]);
@@ -500,7 +500,7 @@ void cloudDriver(byte b[]) {
   clearBuffer();
 }
 
-void passInByte(byte b) {
+void passInByte(uint8_t b) {
   buffer.shift();
   buffer.add(b);
 }
@@ -620,13 +620,13 @@ void scanWiFi() {
   wifiNr = m;
 }
 
-void displayImage(byte image[]) {
+void displayImage(uint8_t image[]) {
   for (unsigned int i = 0; i < 8; i++) {
     lc.setRow(0, i, image[i]);
   }
 }
 
-void displayImageOverlay(byte image1[], byte image2[]) {
+void displayImageOverlay(uint8_t image1[], uint8_t image2[]) {
   for (unsigned int i = 0; i < 8; i++) {
     lc.setRow(0, i, image1[i] | image2[i]);
   }
