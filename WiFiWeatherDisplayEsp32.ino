@@ -236,7 +236,7 @@ void displayFloat(float value) {
       lc.setRow(0, i, numUnderHundred[(int) value / 10][i]);
     }
     for(int i = 0; i < 3; i++) {
-      lc.setRow(0, i + 4, numUnderHundred[(int) value][i]);
+      lc.setRow(0, i + 4, numUnderHundred[(int) value % 10][i]);
     }
   }else if(value >= 1 && value < 10) {
     // 1.0 - 9.9 ✅
