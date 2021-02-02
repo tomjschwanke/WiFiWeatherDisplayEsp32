@@ -710,7 +710,7 @@ void requestCovidData() {
 
       digitalWrite(LED_WARN, LOW);    
     }else {
-      Serial.printf("[COVID-API] HTTP error %s\n\r", httpCode);
+      Serial.printf("[COVID-API] HTTP error %s\n\r", String(httpCode).c_str());
       digitalWrite(LED_WARN, HIGH);
     }
   }else {
