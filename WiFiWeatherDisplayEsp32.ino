@@ -192,15 +192,15 @@ void displayTemp(int temp) {
 
 void displayNegative(int temp) {
   temp = -temp;
-  lc.setRow(0, 0, B00001000);
-  lc.setRow(0, 1, B00001000);
-  lc.setRow(0, 2, B00001000);
-  lc.setRow(0, 3, B00000000);
+  lc.setRow(0, 0, 0b00001000);
+  lc.setRow(0, 1, 0b00001000);
+  lc.setRow(0, 2, 0b00001000);
+  lc.setRow(0, 3, 0b00000000);
 
   for (unsigned int i = 0; i < 3 ; i++)
     lc.setRow(0, i + 4, numUnderHundred[temp][i]);
 
-  lc.setRow(0, 7, B00000001);
+  lc.setRow(0, 7, 0b00000001);
 }
 
 void displayUnderHundred(int temp) {
@@ -211,7 +211,7 @@ void displayUnderHundred(int temp) {
       }
     }else {
       for(unsigned int i = 0; i < 3; i++) {
-        lc.setRow(0, i, B00000000);
+        lc.setRow(0, i, 0b00000000);
       }
     }
   }else {
@@ -220,13 +220,13 @@ void displayUnderHundred(int temp) {
     }
   }
     
-  lc.setRow(0, 3, B00000000);
+  lc.setRow(0, 3, 0b00000000);
 
   for (unsigned int i = 0; i < 3 ; i++) {
     lc.setRow(0, i + 4, numUnderHundred[temp % 10][i]);
   }
 
-  lc.setRow(0, 7, B00000001);
+  lc.setRow(0, 7, 0b00000001);
 }
 
 void displayOverHundred(int temp) {
@@ -514,7 +514,7 @@ void displayBuffer() {
 void clearBuffer() {
   for (unsigned int i = 0; i < 16; i++) {
     buffer.shift();
-    buffer.add(B00000000);
+    buffer.add(0b00000000);
   }
 }
 
@@ -529,12 +529,12 @@ void displayHumidity(int h) {
       for (unsigned int i = 0; i < 3 ; i++)
         lc.setRow(0, i, numUnderHundred[h / 10][i]);
 
-    lc.setRow(0, 3, B00000000);
+    lc.setRow(0, 3, 0b00000000);
 
     for (unsigned int i = 0; i < 3 ; i++)
       lc.setRow(0, i + 4, numUnderHundred[h % 10][i]);
 
-    lc.setRow(0, 7, B00000000);
+    lc.setRow(0, 7, 0b00000000);
   }
 }
 
