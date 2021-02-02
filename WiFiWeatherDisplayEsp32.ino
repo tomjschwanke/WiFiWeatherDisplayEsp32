@@ -208,6 +208,8 @@ void displayCovidData() {
 }
 
 void displayFloat(float value) {
+  Serial.println(value);
+  lc.clearMatrix();
   // TODO: rounding ❌
   if(value > 119) {
     // Too high ✅
@@ -225,35 +227,35 @@ void displayFloat(float value) {
         lc.setRow(0, i, hundredTeens[i]);
       }
     }
-    for(int i = 5; i < 8; i++) {
+    for(int i = 0; i < 3; i++) {
       // xx[n]
-      lc.setRow(0, i, numOverHundred[(int) value % 10][i]);
+      lc.setRow(0, i + 5, numOverHundred[(int) value % 10][i]);
     }
   }else if(value >= 10 && value < 100) {
     // 10 - 99 ✅
     for(int i = 0; i < 3; i++) {
       lc.setRow(0, i, numUnderHundred[(int) value / 10][i]);
     }
-    for(int i = 4; i < 7; i++) {
-      lc.setRow(0, i, numUnderHundred[(int) value][i]);
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 4, numUnderHundred[(int) value][i]);
     }
   }else if(value >= 1 && value < 10) {
     // 1.0 - 9.9 ✅
     for(int i = 0; i < 3; i++) {
       lc.setRow(0, i, numUnderHundred[(int) value][i]);
     }
-    for(int i = 4; i < 7; i++) {
-      lc.setRow(0, i, numUnderHundred[digit(value, -1)][i]);
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 4, numUnderHundred[digit(value, -1)][i]);
     }
     // ","
     lc.setLed(0, 3, 1, true);
   }else if(value > 0 && value < 1) {
     // .01 - .99 ✅
-    for(int i = 1; i < 4; i++) {
-      lc.setRow(0, i, numUnderHundred[digit(value, -1)][i]);
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 1, numUnderHundred[digit(value, -1)][i]);
     }
-    for(int i = 5; i < 8; i++) {
-      lc.setRow(0, i, numUnderHundred[digit(value, -2)][i]);
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 5, numUnderHundred[digit(value, -2)][i]);
     }
     lc.setLed(0, 0, 1, true);
   }else if(value > -1 && value < 0) {
@@ -262,8 +264,8 @@ void displayFloat(float value) {
     for(int i = 0; i < 3; i++) {
       lc.setLed(0, 4, 1, true);
     }
-    for(int i = 4; i < 7; i++) {
-      lc.setRow(0, i, numUnderHundred[digit(value, -1)][i]);
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 4, numUnderHundred[digit(value, -1)][i]);
     }
     // ","
     lc.setLed(0, 3, 1, true);
@@ -272,8 +274,8 @@ void displayFloat(float value) {
     for(int i = 0; i < 3; i++) {
       lc.setRow(0, i, numUnderHundred[0][i]);
     }
-    for(int i = 4; i < 7; i++) {
-      lc.setRow(0, i, numUnderHundred[0][i]);
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 4, numUnderHundred[0][i]);
     }
   }else if(value < -1 && value > -9){
     // -1 - -9 ✅
@@ -281,8 +283,8 @@ void displayFloat(float value) {
     for(int i = 0; i < 3; i++) {
       lc.setLed(0, 4, 1, true);
     }
-    for(int i = 4; i < 7; i++) {
-      lc.setRow(0, i, numUnderHundred[digit(value, -1)][i]);
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 4, numUnderHundred[digit(value, -1)][i]);
     }
   }else if(value < -9) {
     // Too low ✅
