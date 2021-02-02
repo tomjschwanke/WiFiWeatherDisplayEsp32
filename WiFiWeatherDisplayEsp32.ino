@@ -700,7 +700,7 @@ void requestCovidData() {
   if(http.begin(client, uri)) {
     // Successful connection
     int httpCode = http.GET();
-    if(httpCode == 200) {
+    if(httpCode == HTTP_CODE_OK) {
       // Successful get
       String payload = http.getString();
 
