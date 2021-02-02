@@ -37,14 +37,17 @@ HTTPClient http;
 LedController lc = LedController();
 
 // Variables
-int weatherId       = 0;
-float currentTemp   = 0;
-int humidity        = 0;
-long currentTime    = 0;
-long sunrise        = 0;
-long sunset         = 0;
-bool dataIsFresh    = false;
-bool started        = false;
+int weatherId         = 0;
+float currentTemp     = 0;
+int humidity          = 0;
+long currentTime      = 0;
+long sunrise          = 0;
+long sunset           = 0;
+bool dataIsFresh      = false;
+bool started          = false;
+
+float incidence       = 0;
+float r               = 0;
 
 bool configMode;
 
@@ -118,6 +121,7 @@ void setup() {
     int timeout = 0;
     while (!dataIsFresh) {
       requestData();
+      requestCovidData();
       if (dataIsFresh) {
         break;
       }
@@ -147,7 +151,9 @@ void loop() {
     newDelay(2000);
     displayHumidity(humidity);
     newDelay(5000);
+    displayCovidData();
     requestData();
+    requestCovidData();
   }
 }
 
@@ -179,6 +185,112 @@ void adjustBrightness() {
     lc.setIntensity(2);
   else
     lc.setIntensity(0);
+}
+
+int digit(float num, int place, int base = 10) {
+    float factor = 1;
+    for(int i = 0, l = place * ((place < 0)? -1:1); i < l; i++) factor *= base;
+    if(place < 0) num *= factor; else num /= factor;
+    return (((int)num) % base) * ((num < 0)? -1:1);
+}
+
+void displayCovidData() {
+  displayImage(covidIcon);
+  newDelay(2000);
+  displayImage(incidenceIcon);
+  newDelay(2000);
+  displayFloat(incidence);
+  newDelay(5000);
+  displayImage(rIcon);
+  newDelay(2000);
+  displayFloat(r);
+  newDelay(5000);
+}
+
+void displayFloat(float value) {
+  // TODO: rounding ❌
+  if(value > 119) {
+    // Too high ✅
+    displayImage(HI);
+  }else if(value >= 100 && value <= 119) {
+    // 100 - 119 ✅
+    if(value < 110) {
+      // [10]x
+      for(int i = 0; i < 5; i++) {
+        lc.setRow(0, i, hundredOnes[i]);
+      }
+    }else {
+      // [11]x
+      for(int i = 0; i < 5; i++) {
+        lc.setRow(0, i, hundredTeens[i]);
+      }
+    }
+    for(int i = 5; i < 8; i++) {
+      // xx[n]
+      lc.setRow(0, i, numOverHundred[(int) value % 10][i]);
+    }
+  }else if(value >= 10 && value < 100) {
+    // 10 - 99 ✅
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i, numUnderHundred[(int) value / 10][i]);
+    }
+    for(int i = 4; i < 7; i++) {
+      lc.setRow(0, i, numUnderHundred[(int) value][i]);
+    }
+  }else if(value >= 1 && value < 10) {
+    // 1.0 - 9.9 ✅
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i, numUnderHundred[(int) value][i]);
+    }
+    for(int i = 4; i < 7; i++) {
+      lc.setRow(0, i, numUnderHundred[digit(value, -1)][i]);
+    }
+    // ","
+    lc.setLed(0, 3, 1, true);
+  }else if(value > 0 && value < 1) {
+    // .01 - .99 ✅
+    for(int i = 1; i < 4; i++) {
+      lc.setRow(0, i, numUnderHundred[digit(value, -1)][i]);
+    }
+    for(int i = 5; i < 8; i++) {
+      lc.setRow(0, i, numUnderHundred[digit(value, -2)][i]);
+    }
+    lc.setLed(0, 0, 1, true);
+  }else if(value > -1 && value < 0) {
+    // -.9 - -.1 ✅
+    // "-"
+    for(int i = 0; i < 3; i++) {
+      lc.setLed(0, 4, 1, true);
+    }
+    for(int i = 4; i < 7; i++) {
+      lc.setRow(0, i, numUnderHundred[digit(value, -1)][i]);
+    }
+    // ","
+    lc.setLed(0, 3, 1, true);
+  }else if(value == 0) {
+    // 0 ✅
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i, numUnderHundred[0][i]);
+    }
+    for(int i = 4; i < 7; i++) {
+      lc.setRow(0, i, numUnderHundred[0][i]);
+    }
+  }else if(value < -1 && value > -9){
+    // -1 - -9 ✅
+    // "-"
+    for(int i = 0; i < 3; i++) {
+      lc.setLed(0, 4, 1, true);
+    }
+    for(int i = 4; i < 7; i++) {
+      lc.setRow(0, i, numUnderHundred[digit(value, -1)][i]);
+    }
+  }else if(value < -9) {
+    // Too low ✅
+    displayImage(LO);
+  }else {
+    // ??? ✅
+    displayImage(notFound[0]);
+  }
 }
 
 void displayTemp(int temp) {
@@ -576,7 +688,37 @@ void requestData() {
   }
   http.end();
   client.stop();
-  return;
+}
+
+void requestCovidData() {
+  checkWiFi();
+  const char* uri = "https://api.corona-zahlen.org/germany";
+
+  client.setCACert(certISRGRootX1);
+
+  if(http.begin(client, uri)) {
+    // Successful connection
+    int httpCode = http.GET();
+    if(httpCode != 200) {
+      // Successful get
+      String payload = http.getString();
+
+      DynamicJsonDocument doc(768);
+      deserializeJson(doc, payload);
+      incidence  = doc["weekIncidence"];
+      r          = doc["r"]["value"];
+
+      digitalWrite(LED_WARN, LOW);    
+    }else {
+      Serial.printf("[COVID-API] HTTP error %s\n\r", httpCode);
+      digitalWrite(LED_WARN, HIGH);
+    }
+  }else {
+    Serial.println("[COVID-API] Error connecting");
+    digitalWrite(LED_WARN, HIGH);
+  }
+  http.end();
+  client.stop();
 }
 
 void checkWiFi() {
