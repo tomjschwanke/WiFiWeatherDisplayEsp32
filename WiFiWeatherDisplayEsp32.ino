@@ -695,7 +695,7 @@ void requestCovidData() {
   checkWiFi();
   const char* uri = "https://api.corona-zahlen.org/germany";
 
-  client.setCACert(certISRGRootX1);
+  client.setCACert(DSTRootCAX3);
 
   if(http.begin(client, uri)) {
     // Successful connection
