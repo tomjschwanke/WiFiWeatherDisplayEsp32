@@ -208,7 +208,6 @@ void displayCovidData() {
 }
 
 void displayFloat(float value) {
-  Serial.println(value);
   lc.clearMatrix();
   // TODO: rounding ❌
   if(value > 119) {
@@ -701,7 +700,7 @@ void requestCovidData() {
   if(http.begin(client, uri)) {
     // Successful connection
     int httpCode = http.GET();
-    if(httpCode != 200) {
+    if(httpCode == 200) {
       // Successful get
       String payload = http.getString();
 
