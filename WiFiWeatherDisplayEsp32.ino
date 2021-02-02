@@ -541,7 +541,17 @@ void displayHumidity(int h) {
 void requestData() {
   dataIsFresh = false;
   checkWiFi();
-  String uri  = "https://api.openweathermap.org/data/2.5/weather?q=" + location + "&appid=" + apikey + "&units=" + (metricUnits ? "metric" : "imperial") +"";
+  const char query[51]  = "https://api.openweathermap.org/data/2.5/weather?q="; // 50 +1
+  const char appid[8]   = "&appid="; // 7 + 1
+  const char units[8]   = "&units="; // 7 + 1
+  // query[50] + location[32] + appid[7] + apikey[32] + units[7] + metric[6]/imperial[8] --> 136 + 1
+  char uri[137];
+  strcpy(uri, query);
+  strcat(uri, location);
+  strcat(uri, appid);
+  strcat(uri, apikey);
+  strcat(uri, units);
+  strcat(uri, metricUnits ? "metric" : "imperial");
 
   client.setCACert(certUSERTrustRootCA);
 
@@ -550,7 +560,8 @@ void requestData() {
     int httpCode = http.GET();
     if (httpCode > 0 && httpCode == HTTP_CODE_OK) {
       // Successful request
-      String payload = http.getString();
+      char payload[1024];
+      strcpy(payload, http.getString().c_str());
       // Parse JSON
       DynamicJsonDocument doc(1024);
       deserializeJson(doc, payload);
@@ -685,7 +696,7 @@ void writeFileBool(const char * path, bool data) {
   }
 }
 
-void writeFileString(const char * path, String data) {
+void writeFileString(const char * path, const char *data) {
   File file = LITTLEFS.open(path, FILE_WRITE);
   if(!file) {
     Serial.printf("[FS] Failed to open file \"%s\" for writing!", path);
@@ -703,37 +714,44 @@ bool readFileBool(const char * path) {
   }
 }
 
-String readFileString(const char * path) {
-  String data = "";
+//TODO
+void readFileString(const char * path, char data[]) {
   if(LITTLEFS.exists(path)) {
     File file = LITTLEFS.open(path, FILE_READ);
     if(!file) {
       Serial.printf("[FS] Failed to open file \"%s\" for reading!\n\r", path);
     }
     while(file.available()) {
-      data += char(file.read());
+      strcat(*data, char(file.read()));
     }
     file.close();
   }else {
     Serial.printf("[FS] File \"%s\" does not exist!\n\r", path);
   }
-  return data;
 }
 
 void handleRoot() {
   if(server.hostHeader().equals("setup.ip")) {
     // Handle requests
-    String s = configHtml;
+    char s[sizeof(configHtml) + (wifiNr * 50) + sizeof(configHtml2) + 1];
+    strcpy(s, configHtml);
     for(int i = 0; i < wifiNr; i++) {
-      s += "<option value=\"" + String(wifiScan[i]) + "\">";
+      strcat(s, "<option value=\"");
+      strcat(s, wifiScan[i]);
+      strcat(s, "\">");
     }
-    s += configHtml2;
+    strcat(s, configHtml2);
     server.send(200, "text/html", s);
   }else {
     // Request to other domain, redirect
     server.sendHeader("Location", "http://setup.ip", true);
     server.send(302, "text/plain", "");
   }
+}
+
+//TODO
+void strtrim(char **string) {
+  
 }
 
 // TODO: validate input
