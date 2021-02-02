@@ -704,7 +704,7 @@ void requestCovidData() {
       // Successful get
       String payload = http.getString();
 
-      DynamicJsonDocument doc(768);
+      StaticJsonDocument<768> doc;
       deserializeJson(doc, payload);
       incidence  = doc["weekIncidence"];
       r          = doc["r"]["value"];
