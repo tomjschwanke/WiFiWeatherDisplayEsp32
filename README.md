@@ -26,6 +26,10 @@ A few years back I saw the video by jconenna where he showed off his WiFi weathe
 - Celsius or Farenheit defined in config mode
 ### Humidity
 - 0% to 100% RH
+### Covid statistics
+- Shows current 7-day-incidence and the r-value for Germany from [rki-covid-api by Marlon Lückert](https://api.corona-zahlen.org/)
+- Still under development
+
 ### Automatic dimming
 - Dims after sunset (info from OpenWeatherMap API)
 ### OTA
