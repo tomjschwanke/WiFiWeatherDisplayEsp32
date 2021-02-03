@@ -37,17 +37,18 @@ HTTPClient http;
 LedController lc = LedController();
 
 // Variables
-int weatherId         = 0;
-float currentTemp     = 0;
-int humidity          = 0;
-long currentTime      = 0;
-long sunrise          = 0;
-long sunset           = 0;
-bool dataIsFresh      = false;
-bool started          = false;
+int weatherId           = 0;
+float currentTemp       = 0;
+int humidity            = 0;
+long currentTime        = 0;
+long sunrise            = 0;
+long sunset             = 0;
+bool dataIsFresh        = false;
+bool started            = false;
 
-float incidence       = 0;
-float r               = 0;
+float incidence         = 0;
+float r                 = 0;
+uint8_t incidenceTrend  = 0;
 
 bool configMode;
 
@@ -201,10 +202,22 @@ void displayCovidData() {
   newDelay(2000);
   displayFloat(incidence);
   newDelay(5000);
+  displayTrend(incidenceTrend);
+  newDelay(2000);
   displayImage(rIcon);
   newDelay(2000);
   displayFloat(r);
   newDelay(5000);
+}
+
+void displayTrend(uint8_t trend) {
+  // 1 = equal; 2 = falling; 3 = rising
+  switch (trend) {
+    case 1: displayImage(arrowStraight);  break;
+    case 2: displayImage(arrowDown);      break;
+    case 3: displayImage(arrowUp);        break;
+    default:                              break;
+  }
 }
 
 void displayFloat(float value) {
@@ -716,6 +729,50 @@ void requestCovidData() {
     }
   }else {
     Serial.println("[COVID-API] Error connecting");
+    digitalWrite(LED_WARN, HIGH);
+  }
+  http.end();
+  client.stop();
+  requestIncidenceTrend();
+}
+
+// 1 = equal; 2 = falling; 3 = rising
+void requestIncidenceTrend() {
+  checkWiFi();
+  const char* uri = "https://api.corona-zahlen.org/germany/history/incidence/2";
+
+  client.setCACert(DSTRootCAX3);
+
+  if(http.begin(client, uri)) {
+    // Successful connection
+    int httpCode = http.GET();
+    if(httpCode == HTTP_CODE_OK) {
+      // Successful get
+      String payload = http.getString();
+
+      StaticJsonDocument<768> doc;
+      deserializeJson(doc, payload);
+      float prevIncidence = doc["data"][0]["weekIncidence"];
+      float currIncidence = doc["data"][1]["weekIncidence"];
+      
+      if(currIncidence == prevIncidence) {
+        // -->
+       incidenceTrend = 1;
+      }else if(currIncidence < prevIncidence) {
+        // falling
+        incidenceTrend = 2;
+      }else if(currIncidence > prevIncidence) {
+        // rising
+        incidenceTrend = 3;
+      }
+
+      digitalWrite(LED_WARN, LOW);    
+    }else {
+      Serial.printf("[COVID-TREND] HTTP error %s\n\r", String(httpCode).c_str());
+      digitalWrite(LED_WARN, HIGH);
+    }
+  }else {
+    Serial.println("[COVID-TREND] Error connecting");
     digitalWrite(LED_WARN, HIGH);
   }
   http.end();
