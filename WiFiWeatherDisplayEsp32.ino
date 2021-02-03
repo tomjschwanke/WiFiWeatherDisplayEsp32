@@ -18,12 +18,16 @@
 #include <DNSServer.h>
 #include <FS.h>
 #include <LITTLEFS.h>
+//#include <HttpsOTAUpdate.h>
 
 #define CS        5
 #define Segments  1
 
 #define LED_CONN  26 // Red
 #define LED_WARN  27 // Yellow
+
+const char *version = "1";
+char latestVersion[9];
 
 // For config mode
 IPAddress configIp(192, 168, 4, 1);
@@ -577,6 +581,61 @@ void requestData() {
   http.end();
   client.stop();
   return;
+}
+
+void checkAndInstallUpdates() {
+  char *downloadUrl;
+  requestUpdate(&downloadUrl);
+  if(!strcmp(downloadUrl, "") == 0) {
+    // Update available
+  }
+}
+
+// Checks for a new version and returns the download URL if one is available
+void requestUpdate(char **downloadUrl) {
+  const char *checkUrl = "https://api.github.com/repos/tomjschwanke/unlimitedanvil/releases/latest";
+  checkWiFi();
+
+  client.setCACert(digiCertEvRootCA);
+  
+  if(http.begin(client, checkUrl)) {
+    http.addHeader("User-Agent", "WiFiWeatherDisplayEsp32-v1");
+    int httpCode = http.GET();
+    if(httpCode == HTTP_CODE_OK) {
+
+      String payload = http.getString();
+
+      // Parse JSON
+      DynamicJsonDocument doc(6114);
+      deserializeJson(doc, payload);
+      strcpy(latestVersion, doc["name"].as<char*>());
+      JsonObject assets_0 = doc["assets"][0];
+      
+      if(strcmp(version, latestVersion) == 0) {
+        Serial.printf("[Updater] Version \"%s\" is already the newest version.\n\r", version);
+      }else {
+        // TODO: check if version on the server is higher
+        Serial.printf("[Updater] This version \"%s\" differs from version \"%s\" on the server, updating...\n\r", version, latestVersion);
+        strcpy(*downloadUrl, assets_0["browser_download_url"].as<char*>());
+      }
+
+    }else {
+      // HTTP error
+      Serial.printf("[Updater] HTTP error %d\n\r", httpCode);
+    }
+
+  }else {
+    // Connection failed
+    Serial.println("[Updater] Connection failed");
+  }
+  http.end();
+  client.stop();
+}
+
+// Downloads and installs the update from the given URL
+void installUpdate(char* uri) {
+  // TODO: implement OTA mechanism
+  
 }
 
 void checkWiFi() {
