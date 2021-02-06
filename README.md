@@ -28,6 +28,10 @@ A few years back I saw the video by jconenna where he showed off his WiFi weathe
 - 0% to 100% RH
 ### Automatic dimming
 - Dims after sunset (info from OpenWeatherMap API)
+### Covid stats (Germany only)
+- Displays the latest 7-week-incidence and r-value
+- incidence shows an up or down arrow according to the trend
+- data from https://api.corona-zahlen.org/
 ### OTA
 - Set a hostname and password to update the ESP over WiFi without connecting the USB cable
 - has its own neat progress animation (can be a bit laggy, but excuse the chip, its updating itself)
