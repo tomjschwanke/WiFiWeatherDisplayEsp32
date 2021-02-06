@@ -1,13 +1,18 @@
-#define PATH_RESETFLAG    "/flagreset.txt"
-#define PATH_VALIDCONFIG  "/flagvalidconfig.txt"
-#define PATH_FORMATTED    "/flagformatted.txt"
+#define PATH_RESETFLAG      "/flagreset.txt"
+#define PATH_VALIDCONFIG    "/flagvalidconfig.txt"
+#define PATH_FORMATTED      "/flagformatted.txt"
 
-#define PATH_SSID         "/wifissid.txt"
-#define PATH_WIFIPASS     "/wifipass.txt"
-#define PATH_DEVICENAME   "/devicename.txt"
-#define PATH_LOCATION     "/location.txt"
-#define PATH_UNITS        "/units.txt"
-#define PATH_LEAD0        "/leadingzero.txt"
+#define PATH_SSID           "/wifissid.txt"
+#define PATH_WIFIPASS       "/wifipass.txt"
+#define PATH_DEVICENAME     "/devicename.txt"
+#define PATH_LOCATION       "/location.txt"
+#define PATH_UNITS          "/units.txt"
+#define PATH_LEAD0          "/leadingzero.txt"
+
+#define PATH_INCIDENCE      "/incidence.txt"
+#define PATH_RVALUE         "/rvalue.txt"
+#define PATH_INCIDENCE_PREV "/previousincidence.txt"
+#define PATH_RVALUE_PREV    "/previousrvalue.txt"
 
 /*
 #define PATH_RESETFLAG    "/Flags/resetflag.txt"

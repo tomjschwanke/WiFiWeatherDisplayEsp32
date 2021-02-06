@@ -48,7 +48,6 @@ bool started            = false;
 
 float incidence         = 0;
 float r                 = 0;
-uint8_t incidenceTrend  = 0;
 
 bool configMode;
 
@@ -104,6 +103,9 @@ void setup() {
     LITTLEFS.remove(PATH_RESETFLAG);
 
     readFileConfig();
+
+    incidence = readFileString(PATH_INCIDENCE).toFloat();
+    r         = readFileString(PATH_RVALUE).toFloat();
 
     Serial.printf("[Info] Devicename: %s\n\r", devicename.c_str());
     
@@ -202,15 +204,31 @@ void displayCovidData() {
   newDelay(2000);
   displayFloat(incidence);
   newDelay(5000);
-  displayTrend(incidenceTrend);
-  newDelay(2000);
+  if(!readFileString(PATH_INCIDENCE).equals("") && !readFileString(PATH_INCIDENCE_PREV).equals(""))
+  displayTrend(getTrend(readFileString(PATH_INCIDENCE_PREV).toFloat(), readFileString(PATH_INCIDENCE).toFloat()), 2000);
   displayImage(rIcon);
   newDelay(2000);
   displayFloat(r);
   newDelay(5000);
+  if(!readFileString(PATH_RVALUE).equals("") && !readFileString(PATH_RVALUE_PREV).equals(""))
+  displayTrend(getTrend(readFileString(PATH_RVALUE_PREV).toFloat(), readFileString(PATH_RVALUE).toFloat()), 2000);
 }
 
-void displayTrend(uint8_t trend) {
+uint8_t getTrend(float val1, float val2) {
+  // TODO: add margin
+  // 0 = error; 1 = equal; 2 = falling; 3 = rising
+  if(val1 == val2) {
+    return 1;
+  }else if(val1 > val2) {
+    return 2;
+  }else if(val1 < val2) {
+    return 3;
+  }else {
+    return 0;
+  }
+}
+
+void displayTrend(uint8_t trend, unsigned long delay) {
   // 1 = equal; 2 = falling; 3 = rising
   switch (trend) {
     case 1: displayImage(arrowStraight);  break;
@@ -218,6 +236,8 @@ void displayTrend(uint8_t trend) {
     case 3: displayImage(arrowUp);        break;
     default:                              break;
   }
+  if(trend != 0)
+  newDelay(delay);
 }
 
 void displayFloat(float value) {
@@ -722,6 +742,20 @@ void requestCovidData() {
       incidence  = doc["weekIncidence"];
       r          = doc["r"]["value"];
 
+      // Compare with previous value or update them
+      if(incidence != NULL && incidence != readFileString(PATH_INCIDENCE).toFloat()) {
+        // Write current value into previous
+        writeFileString(PATH_INCIDENCE_PREV, readFileString(PATH_INCIDENCE));
+        // Write new value into current
+        writeFileString(PATH_INCIDENCE, String(incidence));
+
+      }
+      // Same thing for r-value
+      if(r != NULL && r != readFileString(PATH_RVALUE).toFloat()) {
+        writeFileString(PATH_RVALUE_PREV, readFileString(PATH_RVALUE));
+        writeFileString(PATH_RVALUE, String(r));
+      }
+
       digitalWrite(LED_WARN, LOW);    
     }else {
       Serial.printf("[COVID-API] HTTP error %s\n\r", String(httpCode).c_str());
@@ -729,50 +763,6 @@ void requestCovidData() {
     }
   }else {
     Serial.println("[COVID-API] Error connecting");
-    digitalWrite(LED_WARN, HIGH);
-  }
-  http.end();
-  client.stop();
-  requestIncidenceTrend();
-}
-
-// 1 = equal; 2 = falling; 3 = rising
-void requestIncidenceTrend() {
-  checkWiFi();
-  const char* uri = "https://api.corona-zahlen.org/germany/history/incidence/2";
-
-  client.setCACert(DSTRootCAX3);
-
-  if(http.begin(client, uri)) {
-    // Successful connection
-    int httpCode = http.GET();
-    if(httpCode == HTTP_CODE_OK) {
-      // Successful get
-      String payload = http.getString();
-
-      StaticJsonDocument<768> doc;
-      deserializeJson(doc, payload);
-      float prevIncidence = doc["data"][0]["weekIncidence"];
-      float currIncidence = doc["data"][1]["weekIncidence"];
-      
-      if(currIncidence == prevIncidence) {
-        // -->
-       incidenceTrend = 1;
-      }else if(currIncidence < prevIncidence) {
-        // falling
-        incidenceTrend = 2;
-      }else if(currIncidence > prevIncidence) {
-        // rising
-        incidenceTrend = 3;
-      }
-
-      digitalWrite(LED_WARN, LOW);    
-    }else {
-      Serial.printf("[COVID-TREND] HTTP error %s\n\r", String(httpCode).c_str());
-      digitalWrite(LED_WARN, HIGH);
-    }
-  }else {
-    Serial.println("[COVID-TREND] Error connecting");
     digitalWrite(LED_WARN, HIGH);
   }
   http.end();
