@@ -214,7 +214,7 @@ void displayCovidData() {
   displayTrend(getTrend(readFileString(PATH_RVALUE_PREV).toFloat(), readFileString(PATH_RVALUE).toFloat()), 2000);
 }
 
-uint8_t getTrend(int val1, int val2) {
+uint8_t getTrend(float val1, float val2) {
   // TODO: add margin
   // 0 = error; 1 = equal; 2 = falling; 3 = rising
   if(val1 == val2) {
