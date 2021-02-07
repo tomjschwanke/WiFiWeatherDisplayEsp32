@@ -37,14 +37,17 @@ HTTPClient http;
 LedController lc = LedController();
 
 // Variables
-int weatherId       = 0;
-float currentTemp   = 0;
-int humidity        = 0;
-long currentTime    = 0;
-long sunrise        = 0;
-long sunset         = 0;
-bool dataIsFresh    = false;
-bool started        = false;
+int weatherId           = 0;
+float currentTemp       = 0;
+int humidity            = 0;
+long currentTime        = 0;
+long sunrise            = 0;
+long sunset             = 0;
+bool dataIsFresh        = false;
+bool started            = false;
+
+float incidence         = 0;
+float r                 = 0;
 
 bool configMode;
 
@@ -101,6 +104,9 @@ void setup() {
 
     readFileConfig();
 
+    incidence = readFileString(PATH_INCIDENCE).toFloat();
+    r         = readFileString(PATH_RVALUE).toFloat();
+
     Serial.printf("[Info] Devicename: %s\n\r", devicename.c_str());
     
     // Init LEDs
@@ -118,6 +124,7 @@ void setup() {
     int timeout = 0;
     while (!dataIsFresh) {
       requestData();
+      requestCovidData();
       if (dataIsFresh) {
         break;
       }
@@ -147,7 +154,9 @@ void loop() {
     newDelay(2000);
     displayHumidity(humidity);
     newDelay(5000);
+    displayCovidData();
     requestData();
+    requestCovidData();
   }
 }
 
@@ -179,6 +188,143 @@ void adjustBrightness() {
     lc.setIntensity(2);
   else
     lc.setIntensity(0);
+}
+
+int digit(float num, int place, int base = 10) {
+    float factor = 1;
+    for(int i = 0, l = place * ((place < 0)? -1:1); i < l; i++) factor *= base;
+    if(place < 0) num *= factor; else num /= factor;
+    return (((int)num) % base) * ((num < 0)? -1:1);
+}
+
+void displayCovidData() {
+  displayImage(covidIcon);
+  newDelay(2000);
+  displayImage(incidenceIcon);
+  newDelay(2000);
+  displayFloat(incidence);
+  newDelay(5000);
+  if(!readFileString(PATH_INCIDENCE).equals("") && !readFileString(PATH_INCIDENCE_PREV).equals(""))
+  displayTrend(getTrend(readFileString(PATH_INCIDENCE_PREV).toFloat(), readFileString(PATH_INCIDENCE).toFloat()), 2000);
+  displayImage(rIcon);
+  newDelay(2000);
+  displayFloat(r);
+  newDelay(5000);
+  if(!readFileString(PATH_RVALUE).equals("") && !readFileString(PATH_RVALUE_PREV).equals(""))
+  displayTrend(getTrend(readFileString(PATH_RVALUE_PREV).toFloat(), readFileString(PATH_RVALUE).toFloat()), 2000);
+}
+
+uint8_t getTrend(float val1, float val2) {
+  // TODO: add margin
+  // 0 = error; 1 = equal; 2 = falling; 3 = rising
+  if(val1 == val2) {
+    return 1;
+  }else if(val1 > val2) {
+    return 2;
+  }else if(val1 < val2) {
+    return 3;
+  }else {
+    return 0;
+  }
+}
+
+void displayTrend(uint8_t trend, unsigned long delay) {
+  // 1 = equal; 2 = falling; 3 = rising
+  switch (trend) {
+    case 1: displayImage(arrowStraight);  break;
+    case 2: displayImage(arrowDown);      break;
+    case 3: displayImage(arrowUp);        break;
+    default:                              break;
+  }
+  if(trend != 0)
+  newDelay(delay);
+}
+
+void displayFloat(float value) {
+  lc.clearMatrix();
+  // TODO: rounding ❌
+  if(value > 119) {
+    // Too high ✅
+    displayImage(HI);
+  }else if(value >= 100 && value <= 119) {
+    // 100 - 119 ✅
+    if(value < 110) {
+      // [10]x
+      for(int i = 0; i < 5; i++) {
+        lc.setRow(0, i, hundredOnes[i]);
+      }
+    }else {
+      // [11]x
+      for(int i = 0; i < 5; i++) {
+        lc.setRow(0, i, hundredTeens[i]);
+      }
+    }
+    for(int i = 0; i < 3; i++) {
+      // xx[n]
+      lc.setRow(0, i + 5, numOverHundred[(int) value % 10][i]);
+    }
+  }else if(value >= 10 && value < 100) {
+    // 10 - 99 ✅
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i, numUnderHundred[(int) value / 10][i]);
+    }
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 4, numUnderHundred[(int) value % 10][i]);
+    }
+  }else if(value >= 1 && value < 10) {
+    // 1.0 - 9.9 ✅
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i, numUnderHundred[(int) value][i]);
+    }
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 4, numUnderHundred[digit(value, -1)][i]);
+    }
+    // ","
+    lc.setLed(0, 3, 1, true);
+  }else if(value > 0 && value < 1) {
+    // .01 - .99 ✅
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 1, numUnderHundred[digit(value, -1)][i]);
+    }
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 5, numUnderHundred[digit(value, -2)][i]);
+    }
+    lc.setLed(0, 0, 1, true);
+  }else if(value > -1 && value < 0) {
+    // -.9 - -.1 ✅
+    // "-"
+    for(int i = 0; i < 3; i++) {
+      lc.setLed(0, 4, 1, true);
+    }
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 4, numUnderHundred[digit(value, -1)][i]);
+    }
+    // ","
+    lc.setLed(0, 3, 1, true);
+  }else if(value == 0) {
+    // 0 ✅
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i, numUnderHundred[0][i]);
+    }
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 4, numUnderHundred[0][i]);
+    }
+  }else if(value < -1 && value > -9){
+    // -1 - -9 ✅
+    // "-"
+    for(int i = 0; i < 3; i++) {
+      lc.setLed(0, 4, 1, true);
+    }
+    for(int i = 0; i < 3; i++) {
+      lc.setRow(0, i + 4, numUnderHundred[digit(value, -1)][i]);
+    }
+  }else if(value < -9) {
+    // Too low ✅
+    displayImage(LO);
+  }else {
+    // ??? ✅
+    displayImage(notFound[0]);
+  }
 }
 
 void displayTemp(int temp) {
@@ -576,7 +722,51 @@ void requestData() {
   }
   http.end();
   client.stop();
-  return;
+}
+
+void requestCovidData() {
+  checkWiFi();
+  const char* uri = "https://api.corona-zahlen.org/germany";
+
+  client.setCACert(DSTRootCAX3);
+
+  if(http.begin(client, uri)) {
+    // Successful connection
+    int httpCode = http.GET();
+    if(httpCode == HTTP_CODE_OK) {
+      // Successful get
+      String payload = http.getString();
+
+      StaticJsonDocument<768> doc;
+      deserializeJson(doc, payload);
+      incidence  = doc["weekIncidence"];
+      r          = doc["r"]["value"];
+
+      // Compare with previous value or update them
+      if(incidence != NULL && incidence != readFileString(PATH_INCIDENCE).toFloat()) {
+        // Write current value into previous
+        writeFileString(PATH_INCIDENCE_PREV, readFileString(PATH_INCIDENCE));
+        // Write new value into current
+        writeFileString(PATH_INCIDENCE, String(incidence));
+
+      }
+      // Same thing for r-value
+      if(r != NULL && r != readFileString(PATH_RVALUE).toFloat()) {
+        writeFileString(PATH_RVALUE_PREV, readFileString(PATH_RVALUE));
+        writeFileString(PATH_RVALUE, String(r));
+      }
+
+      digitalWrite(LED_WARN, LOW);    
+    }else {
+      Serial.printf("[COVID-API] HTTP error %s\n\r", String(httpCode).c_str());
+      digitalWrite(LED_WARN, HIGH);
+    }
+  }else {
+    Serial.println("[COVID-API] Error connecting");
+    digitalWrite(LED_WARN, HIGH);
+  }
+  http.end();
+  client.stop();
 }
 
 void checkWiFi() {
