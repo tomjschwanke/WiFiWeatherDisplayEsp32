@@ -182,6 +182,18 @@ void adjustBrightness() {
 }
 
 void displayTemp(int temp) {
+  if (temp >= 120) {
+    displayImage(HI);
+  }else if (temp < 120 && temp >= 100) {
+    displayOverHundred(temp);
+  }else if (temp < 100 && temp >= 0) {
+    displayUnderHundred(temp);
+  }else if (temp < 0 && temp > -10) {
+    displayNegative(temp);
+  }else if(temp <= -10) {
+    displayImage(LO);
+  }
+
   if (temp < 100 && temp > -1)
     displayUnderHundred(temp);
   else if (temp < 0 && temp > -10)
