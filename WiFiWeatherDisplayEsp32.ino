@@ -194,13 +194,6 @@ void displayTemp(int temp) {
   }else if(temp <= -10) {
     displayImage(LO);
   }
-
-  if (temp < 100 && temp > -1)
-    displayUnderHundred(temp);
-  else if (temp < 0 && temp > -10)
-    displayNegative(temp);
-  else
-    displayOverHundred(temp);
 }
 
 void displayNegative(int temp) {
