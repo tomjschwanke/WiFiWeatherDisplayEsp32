@@ -190,20 +190,33 @@ void displayTemp(int temp) {
     displayUnderHundred(temp);
   }else if (temp < 0 && temp > -10) {
     displayNegative(temp);
-  }else if(temp <= -10) {
+  }else if(temp <= -10 && temp > -20) {
+    displayNegativeTens(temp);
+  }else if(temp <= -20) {
     displayImage(LO);
   }
 }
 
+void displayNegativeTens(int temp) {
+  lc.setRow(0, 0, B00001000);
+  lc.setRow(0, 1, B00001000);
+  lc.setRow(0, 2, B00000000);
+  lc.setRow(0, 3, B00111110);
+  lc.setRow(0, 4, B00000000);
+
+  for(unsigned int i = 0; i < 3; i++) {
+    lc.setRow(0, i + 5, numUnderHundred[-temp % 10][i]);
+  }
+}
+
 void displayNegative(int temp) {
-  temp = -temp;
   lc.setRow(0, 0, B00001000);
   lc.setRow(0, 1, B00001000);
   lc.setRow(0, 2, B00001000);
   lc.setRow(0, 3, B00000000);
 
   for (unsigned int i = 0; i < 3 ; i++)
-    lc.setRow(0, i + 4, numUnderHundred[temp][i]);
+    lc.setRow(0, i + 4, numUnderHundred[-temp][i]);
 
   lc.setRow(0, 7, B00000001);
 }
