@@ -205,8 +205,8 @@ void displayNegativeTens(int temp) {
   lc.setRow(0, 4, B00000000);
 
   for(unsigned int i = 0; i < 3; i++) {
-    lc.setRow(0, i + 5, numUnderHundred[-temp][i]);
-  }  
+    lc.setRow(0, i + 5, numUnderHundred[-temp % 10][i]);
+  }
 }
 
 void displayNegative(int temp) {
