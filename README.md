@@ -22,7 +22,7 @@ A few years back I saw the video by jconenna where he showed off his WiFi weathe
 - fog
 - if a condition is missing, there will be a blinking X
 ### Temperature
-- -99° to 199°
+- -19° to 119°
 - Celsius or Farenheit defined in config mode
 ### Humidity
 - 0% to 100% RH
